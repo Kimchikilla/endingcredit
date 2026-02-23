@@ -1,0 +1,425 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: 'Noto Serif KR', serif;
+}
+
+/* ===== Stars Background ===== */
+#stars, #stars2, #stars3 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#stars {
+  background: transparent;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+
+#stars2 {
+  background: transparent;
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+
+#stars3 {
+  background: transparent;
+  animation: twinkle 7s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from { opacity: 0.3; }
+  to { opacity: 1; }
+}
+
+/* ===== Start Screen ===== */
+#start-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+
+#start-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.start-content {
+  text-align: center;
+  animation: fadeInUp 2s ease;
+}
+
+.start-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 16px;
+}
+
+.start-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 4rem;
+  font-weight: 900;
+  letter-spacing: 12px;
+  color: #d4af37;
+  text-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+  margin-bottom: 60px;
+}
+
+#play-btn {
+  background: none;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  color: #d4af37;
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  letter-spacing: 6px;
+  padding: 16px 48px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+#play-btn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: #d4af37;
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+}
+
+/* ===== Credits Container ===== */
+#credits-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#credits {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  text-align: center;
+  padding: 0 20px;
+}
+
+#credits.rolling {
+  animation: creditRoll 120s linear forwards;
+}
+
+@keyframes creditRoll {
+  from {
+    top: 100%;
+  }
+  to {
+    top: var(--end-position, -4000px);
+  }
+}
+
+/* ===== Sections ===== */
+.section {
+  padding: 80px 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ===== Opening ===== */
+.opening {
+  padding: 200px 0;
+}
+
+.film-label {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===== Title Section ===== */
+.title-section {
+  padding: 150px 0 200px;
+}
+
+.main-title {
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1.5;
+  color: #d4af37;
+  text-shadow: 0 0 60px rgba(212, 175, 55, 0.3);
+  margin-bottom: 40px;
+}
+
+.genre {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  letter-spacing: 6px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ===== Chapters ===== */
+.chapter {
+  padding: 100px 0;
+}
+
+.chapter-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.6);
+  margin-bottom: 12px;
+}
+
+.chapter-subtitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.chapter-year {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 50px;
+}
+
+.chapter-content p {
+  font-size: 1.15rem;
+  line-height: 2.2;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 300;
+}
+
+.chapter-content .highlight {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.chapter-content .highlight.gold {
+  color: #d4af37;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.chapter-content .small-text {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+}
+
+.chapter-content .quote {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: rgba(212, 175, 55, 0.8);
+  margin-top: 20px;
+}
+
+.chapter-content .quote.large {
+  font-size: 1.6rem;
+  color: #d4af37;
+  text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+}
+
+/* Location Flow */
+.location-flow {
+  margin: 20px 0;
+}
+
+.location-item {
+  font-size: 1.15rem !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.flow-arrow {
+  font-size: 0.9rem !important;
+  color: rgba(212, 175, 55, 0.4) !important;
+  line-height: 1.5 !important;
+}
+
+/* Dividers */
+.divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.3);
+  margin: 30px auto;
+}
+
+.divider-large {
+  width: 60px;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.5);
+  margin: 50px auto;
+}
+
+/* ===== Thanks Section ===== */
+.thanks {
+  padding: 120px 0;
+}
+
+.thanks-border {
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+  margin: 0 auto 40px;
+}
+
+.thanks-border:last-child {
+  margin: 40px auto 0;
+}
+
+.thanks-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  letter-spacing: 6px;
+  color: #d4af37;
+  margin-bottom: 50px;
+}
+
+.thanks-text {
+  font-size: 1.3rem;
+  line-height: 2.4;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 300;
+}
+
+.thanks-message {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ===== Credits Roll ===== */
+.credits-roll {
+  padding: 100px 0;
+}
+
+.credit-item {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 40px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.credit-role {
+  font-size: 0.9rem;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: right;
+  min-width: 120px;
+}
+
+.credit-name {
+  font-size: 1.2rem;
+  color: #fff;
+  font-weight: 400;
+  text-align: left;
+  min-width: 200px;
+  line-height: 1.8;
+}
+
+/* ===== Ending ===== */
+.ending {
+  padding: 150px 0 300px;
+}
+
+.ending-text {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 12px;
+}
+
+.ending-studio {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.6);
+}
+
+/* ===== Fade In Animation ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .start-title {
+    font-size: 2.5rem;
+    letter-spacing: 8px;
+  }
+
+  .start-subtitle {
+    font-size: 0.9rem;
+    letter-spacing: 5px;
+  }
+
+  .main-title {
+    font-size: 2.2rem;
+  }
+
+  .chapter-subtitle {
+    font-size: 1.6rem;
+  }
+
+  .chapter-content p {
+    font-size: 1rem;
+  }
+
+  .chapter-content .highlight {
+    font-size: 1.15rem;
+  }
+
+  .credit-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .credit-role, .credit-name {
+    text-align: center;
+    min-width: auto;
+  }
+
+  .thanks-message {
+    font-size: 1.6rem;
+  }
+
+  .section {
+    padding: 60px 0;
+  }
+}
