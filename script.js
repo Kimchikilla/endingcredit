@@ -187,18 +187,237 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Spawn timer
+  // ===== Firework System =====
+  const fireworkRockets = [];
+  const fireworkParticles = [];
+
+  const FIREWORK_COLORS = [
+    [255, 215, 0],    // gold
+    [255, 100, 100],  // red
+    [100, 200, 255],  // sky blue
+    [255, 150, 50],   // orange
+    [200, 130, 255],  // purple
+    [100, 255, 180],  // mint
+    [255, 200, 150],  // peach
+    [255, 255, 255],  // white
+  ];
+
+  class FireworkRocket {
+    constructor(targetX, targetY) {
+      this.x = targetX + (Math.random() - 0.5) * 60;
+      this.y = canvas.height + 10;
+      this.targetX = targetX;
+      this.targetY = targetY;
+      this.speed = 4 + Math.random() * 3;
+      this.angle = Math.atan2(this.targetY - this.y, this.targetX - this.x);
+      this.vx = Math.cos(this.angle) * this.speed;
+      this.vy = Math.sin(this.angle) * this.speed;
+      this.trail = [];
+      this.alive = true;
+      this.color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+    }
+
+    update() {
+      this.trail.unshift({ x: this.x, y: this.y });
+      if (this.trail.length > 12) this.trail.pop();
+
+      this.x += this.vx;
+      this.y += this.vy;
+
+      // Check if reached target
+      const dist = Math.hypot(this.x - this.targetX, this.y - this.targetY);
+      if (dist < this.speed * 2) {
+        this.explode();
+        this.alive = false;
+      }
+    }
+
+    draw() {
+      // Rocket trail
+      for (let i = 0; i < this.trail.length; i++) {
+        const t = 1 - i / this.trail.length;
+        ctx.beginPath();
+        ctx.arc(this.trail[i].x, this.trail[i].y, 1.5 * t, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${t * 0.6})`;
+        ctx.fill();
+      }
+
+      // Rocket head glow
+      const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 6);
+      g.addColorStop(0, `rgba(255, 255, 255, 0.9)`);
+      g.addColorStop(0.5, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0.4)`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+    }
+
+    explode() {
+      const particleCount = 60 + Math.floor(Math.random() * 50);
+      const baseColor = this.color;
+      const type = Math.random();
+
+      for (let i = 0; i < particleCount; i++) {
+        let angle, speed, color;
+
+        if (type < 0.3) {
+          // Ring burst
+          angle = (i / particleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+          speed = 3 + Math.random() * 2;
+          color = baseColor;
+        } else if (type < 0.6) {
+          // Multi-color scatter
+          angle = Math.random() * Math.PI * 2;
+          speed = 1 + Math.random() * 5;
+          color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+        } else {
+          // Classic sphere
+          angle = Math.random() * Math.PI * 2;
+          speed = 1 + Math.random() * 4.5;
+          color = baseColor;
+        }
+
+        fireworkParticles.push(new FireworkParticle(
+          this.x, this.y, angle, speed, color
+        ));
+      }
+
+      // Inner sparkle burst
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.5 + Math.random() * 1.5;
+        fireworkParticles.push(new FireworkParticle(
+          this.x, this.y, angle, speed, [255, 255, 255], true
+        ));
+      }
+    }
+
+    isDead() { return !this.alive; }
+  }
+
+  class FireworkParticle {
+    constructor(x, y, angle, speed, color, isSpark = false) {
+      this.x = x;
+      this.y = y;
+      this.vx = Math.cos(angle) * speed;
+      this.vy = Math.sin(angle) * speed;
+      this.gravity = 0.03 + Math.random() * 0.02;
+      this.friction = isSpark ? 0.96 : 0.975;
+      this.life = isSpark ? 0.6 : (0.8 + Math.random() * 0.5);
+      this.decay = isSpark ? 0.02 : (0.006 + Math.random() * 0.008);
+      this.r = color[0];
+      this.g = color[1];
+      this.b = color[2];
+      this.size = isSpark ? (0.5 + Math.random()) : (1.5 + Math.random() * 2);
+      this.isSpark = isSpark;
+      this.trail = [];
+    }
+
+    update() {
+      this.trail.unshift({ x: this.x, y: this.y });
+      if (this.trail.length > (this.isSpark ? 4 : 8)) this.trail.pop();
+
+      this.vy += this.gravity;
+      this.vx *= this.friction;
+      this.vy *= this.friction;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.life -= this.decay;
+
+      // Twinkle effect near end of life
+      if (this.life < 0.3 && Math.random() < 0.1) {
+        this.life -= 0.05;
+      }
+    }
+
+    draw() {
+      if (this.life <= 0) return;
+      const alpha = this.life * this.life;
+
+      // Particle trail
+      if (!this.isSpark) {
+        for (let i = 1; i < this.trail.length; i++) {
+          const t = 1 - i / this.trail.length;
+          ctx.beginPath();
+          ctx.moveTo(this.trail[i - 1].x, this.trail[i - 1].y);
+          ctx.lineTo(this.trail[i].x, this.trail[i].y);
+          ctx.strokeStyle = `rgba(${this.r}, ${this.g}, ${this.b}, ${t * alpha * 0.4})`;
+          ctx.lineWidth = this.size * t * this.life;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+      }
+
+      // Glow
+      const glowR = this.size * 3 * this.life;
+      const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowR);
+      glow.addColorStop(0, `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha * 0.6})`);
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, glowR, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      // Core
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
+      ctx.fill();
+    }
+
+    isDead() { return this.life <= 0; }
+  }
+
+  function launchFirework() {
+    const x = canvas.width * (0.15 + Math.random() * 0.7);
+    const y = canvas.height * (0.1 + Math.random() * 0.35);
+    fireworkRockets.push(new FireworkRocket(x, y));
+  }
+
+  function launchFireworkBarrage() {
+    // Initial burst: 5 fireworks rapid-fire
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => launchFirework(), i * 300);
+    }
+    // Sustained barrage: keep firing for ~8 seconds
+    let count = 0;
+    const barrage = setInterval(() => {
+      launchFirework();
+      if (Math.random() < 0.4) launchFirework(); // double shot sometimes
+      count++;
+      if (count > 15) clearInterval(barrage);
+    }, 500);
+  }
+
+  // ===== Thanks Section Detection =====
+  let fireworkTriggered = false;
+  const thanksSection = document.querySelector('.thanks');
+
+  function checkThanksVisible() {
+    if (fireworkTriggered || !thanksSection) return;
+    const rect = thanksSection.getBoundingClientRect();
+    // Trigger when thanks section enters the bottom half of screen
+    if (rect.top < window.innerHeight * 0.75 && rect.bottom > 0) {
+      fireworkTriggered = true;
+      launchFireworkBarrage();
+    }
+  }
+
+  // ===== Main Animation Loop =====
   let nextSpawn = 1000 + Math.random() * 2000;
   let spawnTimer = 0;
 
-  function animateComets(dt) {
+  function animateAll(dt) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Spawn new comets
+    // Check thanks section visibility
+    checkThanksVisible();
+
+    // Spawn comets
     spawnTimer += dt;
     if (spawnTimer >= nextSpawn) {
       comets.push(new Comet());
-      // Occasionally spawn a second one close together
       if (Math.random() < 0.2) {
         setTimeout(() => comets.push(new Comet()), 100 + Math.random() * 300);
       }
@@ -213,22 +432,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (comets[i].isDead()) comets.splice(i, 1);
     }
 
-    // Update & draw sparkles
+    // Update & draw comet sparkles
     for (let i = sparkles.length - 1; i >= 0; i--) {
       sparkles[i].update();
       sparkles[i].draw();
       if (sparkles[i].isDead()) sparkles.splice(i, 1);
     }
+
+    // Update & draw firework rockets
+    for (let i = fireworkRockets.length - 1; i >= 0; i--) {
+      fireworkRockets[i].update();
+      fireworkRockets[i].draw();
+      if (fireworkRockets[i].isDead()) fireworkRockets.splice(i, 1);
+    }
+
+    // Update & draw firework particles
+    for (let i = fireworkParticles.length - 1; i >= 0; i--) {
+      fireworkParticles[i].update();
+      fireworkParticles[i].draw();
+      if (fireworkParticles[i].isDead()) fireworkParticles.splice(i, 1);
+    }
   }
 
   let lastTime = performance.now();
-  function cometLoop(now) {
+  function mainLoop(now) {
     const dt = now - lastTime;
     lastTime = now;
-    animateComets(dt);
-    requestAnimationFrame(cometLoop);
+    animateAll(dt);
+    requestAnimationFrame(mainLoop);
   }
-  requestAnimationFrame(cometLoop);
+  requestAnimationFrame(mainLoop);
 
   // Keyboard shortcut: Space to play
   document.addEventListener('keydown', (e) => {
